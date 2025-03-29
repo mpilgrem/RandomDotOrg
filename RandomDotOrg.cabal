@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.37.0.
+-- This file has been generated from package.yaml by hpack version 0.38.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -23,7 +23,7 @@ homepage:       https://github.com/mpilgrem/RandomDotOrg#readme
 bug-reports:    https://github.com/mpilgrem/RandomDotOrg/issues
 author:         Mike Pilgrem
 maintainer:     public@pilgrem.com
-copyright:      Copyright 2022-2024 Mike Pilgrem
+copyright:      Copyright 2022-2025 Mike Pilgrem
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
@@ -37,9 +37,10 @@ extra-source-files:
     stack-ghc-9.0.2.yaml
     stack-ghc-9.2.8.yaml
     stack-ghc-9.4.8.yaml
-    stack-ghc-9.6.6.yaml
-    stack-ghc-9.8.2.yaml
+    stack-ghc-9.6.7.yaml
+    stack-ghc-9.8.4.yaml
     stack-ghc-9.10.1.yaml
+    stack-ghc-9.12.2.yaml
 
 source-repository head
   type: git

@@ -6,7 +6,7 @@ github:              "mpilgrem/RandomDotOrg"
 license:             BSD3
 author:              "Mike Pilgrem"
 maintainer:          "public@pilgrem.com"
-copyright:           "Copyright 2022-2024 Mike Pilgrem"
+copyright:           "Copyright 2022-2025 Mike Pilgrem"
 
 extra-source-files:
 - README.md
@@ -18,9 +18,10 @@ extra-source-files:
 - stack-ghc-9.0.2.yaml
 - stack-ghc-9.2.8.yaml
 - stack-ghc-9.4.8.yaml
-- stack-ghc-9.6.6.yaml
-- stack-ghc-9.8.2.yaml
+- stack-ghc-9.6.7.yaml
+- stack-ghc-9.8.4.yaml
 - stack-ghc-9.10.1.yaml
+- stack-ghc-9.12.2.yaml
 
 synopsis:            Haskell bindings to the RANDOM.ORG Core API
 category:            Web
