@@ -1,4 +1,5 @@
-snapshot: lts-23.16 # GHC 9.8.4
+snapshot: lts-22.43 # GHC 9.6.6
+compiler: ghc-9.6.7
 
 extra-deps:
 - servant-jsonrpc-1.2.0@sha256:595a37f4966ce4580813efa889d26165061225778b8ab91b4a88bc3575cbd1bb,1339

@@ -1,69 +1,52 @@
 name: CI
 on:
+  pull_request:
   push:
     branches:
       - main
-  pull_request:
-    types:
-      - opened
-      - synchronize
+
+# As of 2025-03-29, ubuntu-latest and windows-latest come with Stack 3.3.1.
+
 jobs:
-  ubuntu:
-    runs-on: ubuntu-latest
+  build:
+    name: CI
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        cabal: ["3.10"]
-        ghc:
-          - "9.6.6"
-          - "9.8.2"
-          - "9.10.1"
+        os:
+        - ubuntu-latest
+        - windows-latest
+        config:
+        - stack-ghc-9.8.4.yaml
+        - stack-ghc-9.10.1.yaml
+        - stack-ghc-9.12.2.yaml
     steps:
-      - uses: actions/checkout@v4
-      - uses: haskell-actions/setup@v2
-        id: setup-haskell-cabal
-        with:
-          ghc-version: ${{ matrix.ghc }}
-          cabal-version: ${{ matrix.cabal }}
-      - run: cabal v2-update
-      - run: cabal v2-freeze --allow-newer=servant-jsonrpc:aeson --allow-newer=servant-jsonrpc:servant --allow-newer=servant-jsonrpc-client:aeson --allow-newer=servant-jsonrpc-client:servant --allow-newer=servant-jsonrpc-client:servant-client-core
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
-            dist-newstyle
-          key: ${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.ghc }}-
-      - run: cabal v2-build  --allow-newer=servant-jsonrpc:aeson --allow-newer=servant-jsonrpc:servant --allow-newer=servant-jsonrpc-client:aeson --allow-newer=servant-jsonrpc-client:servant --allow-newer=servant-jsonrpc-client:servant-client-core
-  windows:
-    runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        cabal: ["3.10"]
-        ghc:
-          - "9.6.6"
-          - "9.8.2"
-          - "9.10.1"
-        winio: [true]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: haskell-actions/setup@v2
-        id: setup-haskell-cabal
-        with:
-          ghc-version: ${{ matrix.ghc }}
-          cabal-version: ${{ matrix.cabal }}
-      - run: cabal v2-update
-      - run: cabal v2-freeze --allow-newer=servant-jsonrpc:aeson --allow-newer=servant-jsonrpc:servant --allow-newer=servant-jsonrpc-client:aeson --allow-newer=servant-jsonrpc-client:servant --allow-newer=servant-jsonrpc-client:servant-client-core
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
-            dist-newstyle
-          key: ${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.ghc }}-
-      - run: cabal v2-build  --allow-newer=servant-jsonrpc:aeson --allow-newer=servant-jsonrpc:servant --allow-newer=servant-jsonrpc-client:aeson --allow-newer=servant-jsonrpc-client:servant --allow-newer=servant-jsonrpc-client:servant-client-core
-      - if: matrix.winio
-        run: cabal v2-build --ghc-option=-with-rtsopts=--io-manager=native  --allow-newer=servant-jsonrpc:aeson --allow-newer=servant-jsonrpc:servant --allow-newer=servant-jsonrpc-client:aeson --allow-newer=servant-jsonrpc-client:servant --allow-newer=servant-jsonrpc-client:servant-client-core
+    - name: Clone project
+      uses: actions/checkout@v4
+    - name: Cache dependencies on Unix-like OS
+      if: startsWith(runner.os, 'Linux') || startsWith(runner.os, 'macOS')
+      uses: actions/cache@v4
+      with:
+        path: ~/.stack
+        key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.config }}
+    - name: Cache dependencies on Windows
+      if: startsWith(runner.os, 'Windows')
+      uses: actions/cache@v4
+      with:
+        path: |
+           ~\AppData\Roaming\stack
+           ~\AppData\Local\Programs\stack
+        key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.config }}
+    - name: Build
+      shell: bash
+      run: |
+        set -ex
+
+        if [[ "${{ matrix.os }}" == "macos-13" || "${{ matrix.os }}" == "macos-latest" ]]
+        then
+          # macos-13 and macos-latest do not include Haskell tools as at 2025-03-29.
+          curl -sSL https://get.haskellstack.org/ | sh
+        fi
+
+        stack --stack-yaml ${{ matrix.config }} build --pedantic --haddock --no-haddock-deps
